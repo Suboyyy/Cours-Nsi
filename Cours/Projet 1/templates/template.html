@@ -13,6 +13,9 @@
         <br>
         <br>
         <input type="submit" value="Poster" />
+        {% for pic in show_pic %}
+        <img src="{{img_dir}}{{pic[0]}}">
+        {% endfor %}
     </form>
 </body>
 </html>

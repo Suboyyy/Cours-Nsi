@@ -8,15 +8,32 @@ import sqlite3
 
 app = Flask(__name__)
 
-
 # Variables
-img_dir = "Cours/Projet 1/img/"
-db_dir = "Cours/Projet 1/pictures.db"
+img_dir = "E:/NSI/term/Projet whalla gt pour/Cours/Projet 1/img/"
+# img_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/img/"
+db_dir = r"E:\NSI\term\Projet whalla gt pour\Cours\Projet 1\pictures.db"
+
+
+# db_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/pictures.db"
 
 
 @app.route("/")
 def index():
-    return render_template('template.html')
+    show = []
+    db = sqlite3.connect(db_dir)
+    cur = db.cursor()
+    photos = cur.execute("SELECT name FROM photos ORDER BY ordre")
+    photos = photos.fetchall()
+    db.close()
+    if len(photos) == 0:
+        pass
+    elif len(photos) < 10:
+        for i in range(len(photos) - 1, 0, -1):
+            show.append(photos[i][0])
+    else:
+        for i in range(9, 0, -1):
+            show.append(photos[i][0])
+    return render_template('template.html', show_pic=show, img_dir=img_dir)
 
 
 @app.route("/upload_img", methods=['POST', 'GET'])
@@ -25,30 +42,21 @@ def upload_img():
     form_img = request.files['img']
     db = sqlite3.connect(db_dir)
     cur = db.cursor()
-    res = cur.execute("SELECT user_name FROM users")
+    try:
+        cur.execute(f"INSERT INTO users (user_name, nb_pictures) VALUES ('{form_pseudo}', '0')")
+        db.commit()
+    except:
+        pass
+    user_id = cur.execute(f"SELECT user_id FROM users WHERE user_name = '{form_pseudo}'")
+    user_id = user_id.fetchone()
+    nb_pict = cur.execute(f"SELECT nb_pictures FROM users WHERE user_name = '{form_pseudo}'")
+    nb_pict = nb_pict.fetchone()
+    file_name = f"{form_pseudo}{nb_pict[0]}{file_slice(form_img.filename)}"
+    cur.execute(f"INSERT INTO photos (name, user_id) VALUES ('{file_name}', {user_id[0]})")
+    cur.execute(f"UPDATE users SET nb_pictures = {nb_pict[0] + 1} WHERE user_name = '{form_pseudo}'")
     db.commit()
-    res = res.fetchall()
-    if form_pseudo in res:
-        user_id = cur.execute(f'SELECT user_id FROM users WHERE user_name = {form_pseudo}')
-        user_id = user_id.fetchone()
-        nb_pict = cur.execute(f'SELECT nb_pictures FROM users WHERE user_name = {form_pseudo}')
-        nb_pict = nb_pict.fetchone()
-        db.commit()
-        file_name = f"{form_pseudo}{nb_pict[0]}{file_slice(form_img.filename)}"
-        cur.execute(f"INSERT INTO photos (name, user_id) VALUES ({file_name}, {user_id[0]})")
-        cur.execute(f"UPDATE users SET nb_pictures = {nb_pict + 1} WHERE user_name = {form_pseudo}")
-        db.commit()
-    else:
-        cur.execute(f"INSERT INTO users (user_name, nb_pictures) VALUES ({form_pseudo}, '1')")
-        db.commit()
-        nb_pict = 1
-        file_name = f"{form_pseudo}{nb_pict}{file_slice(form_img.filename)}"
-        user_id = cur.execute(f'SELECT user_id FROM users WHERE user_name = {form_pseudo}')
-        db.commit()
-        user_id = user_id.fetchone()
-        cur.execute(f"INSERT INTO photos (name, user_id) VALUES ({file_name}, {user_id[0]})")
-        file_name = ""
     form_img.save(f"{img_dir}{file_name}")
+    db.close()
     return redirect("/")
 
 
