@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
+import os
 
 # Pour windows : python -m flask --app "E:\NSI\term\Projet whalla gt pour\Cours\Projet 1\Projet 1.py" --debug run
 # Pour Linux : export FLASK_APP="/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/Projet 1.py"
@@ -12,8 +13,6 @@ app = Flask(__name__)
 img_dir = "E:/NSI/term/Projet whalla gt pour/Cours/Projet 1/img/"
 # img_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/img/"
 db_dir = r"E:\NSI\term\Projet whalla gt pour\Cours\Projet 1\pictures.db"
-
-
 # db_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/pictures.db"
 
 
@@ -64,3 +63,7 @@ def file_slice(f):
     for i in range(len(f)):
         if f[i] == '.':
             return f[i:]
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

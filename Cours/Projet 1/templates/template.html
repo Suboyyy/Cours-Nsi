@@ -13,8 +13,10 @@
         <br>
         <br>
         <input type="submit" value="Poster" />
+        <img src="/img/susu1.jpg">
         {% for pic in show_pic %}
-        <img src="{{img_dir}}{{pic[0]}}">
+        <p>{{img_dir}}susu1.jpg</p>
+        <img src="../img/{{pic}}">
         {% endfor %}
     </form>
 </body>
