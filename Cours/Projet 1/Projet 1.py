@@ -10,10 +10,14 @@ import os
 app = Flask(__name__)
 
 # Variables
-img_dir = "E:/NSI/term/Projet whalla gt pour/Cours/Projet 1/img/"
-# img_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/img/"
+img_dir = "/Cours/Projet 1/static/img/"
+# img_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/static/img/"
 db_dir = r"E:\NSI\term\Projet whalla gt pour\Cours\Projet 1\pictures.db"
 # db_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/pictures.db"
+
+img_folder = os.path.join('static', 'img')
+
+app.config['upload_folder'] = img_folder
 
 
 @app.route("/")
@@ -24,15 +28,13 @@ def index():
     photos = cur.execute("SELECT name FROM photos ORDER BY ordre")
     photos = photos.fetchall()
     db.close()
-    if len(photos) == 0:
-        pass
-    elif len(photos) < 10:
-        for i in range(len(photos) - 1, 0, -1):
-            show.append(photos[i][0])
+    if len(photos) < 10:
+        for i in range(len(photos) - 1, -1, -1):
+            show.append(os.path.join(app.config['upload_folder'], photos[i][0]))
     else:
-        for i in range(9, 0, -1):
-            show.append(photos[i][0])
-    return render_template('template.html', show_pic=show, img_dir=img_dir)
+        for i in range(9, -1, -1):
+            show.append(os.path.join(app.config['upload_folder'], photos[i][0]))
+    return render_template('template.html', show_pic=show)
 
 
 @app.route("/upload_img", methods=['POST', 'GET'])
