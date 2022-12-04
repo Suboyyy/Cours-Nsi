@@ -10,7 +10,7 @@ import os
 app = Flask(__name__)
 
 # Variables
-img_dir = "/Cours/Projet 1/static/img/"
+img_dir = "static/img/"
 # img_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/static/img/"
 db_dir = r"E:\NSI\term\Projet whalla gt pour\Cours\Projet 1\pictures.db"
 # db_dir = "/media/suboy/USB/NSI/term/Projet whalla gt pour/Cours/Projet 1/pictures.db"
@@ -25,14 +25,14 @@ def index():
     show = []
     db = sqlite3.connect(db_dir)
     cur = db.cursor()
-    photos = cur.execute("SELECT name FROM photos ORDER BY ordre")
+    photos = cur.execute("SELECT name FROM photos ORDER BY ordre DESC")
     photos = photos.fetchall()
     db.close()
     if len(photos) < 10:
-        for i in range(len(photos) - 1, -1, -1):
+        for i in range(0, len(photos)):
             show.append(os.path.join(app.config['upload_folder'], photos[i][0]))
     else:
-        for i in range(9, -1, -1):
+        for i in range(0, 10):
             show.append(os.path.join(app.config['upload_folder'], photos[i][0]))
     return render_template('template.html', show_pic=show)
 
@@ -52,7 +52,7 @@ def upload_img():
     user_id = user_id.fetchone()
     nb_pict = cur.execute(f"SELECT nb_pictures FROM users WHERE user_name = '{form_pseudo}'")
     nb_pict = nb_pict.fetchone()
-    file_name = f"{form_pseudo}{nb_pict[0]}{file_slice(form_img.filename)}"
+    file_name = f"{form_pseudo}{nb_pict[0] + 1}{file_slice(form_img.filename)}"
     cur.execute(f"INSERT INTO photos (name, user_id) VALUES ('{file_name}', {user_id[0]})")
     cur.execute(f"UPDATE users SET nb_pictures = {nb_pict[0] + 1} WHERE user_name = '{form_pseudo}'")
     db.commit()
